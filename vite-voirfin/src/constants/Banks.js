@@ -1,0 +1,15 @@
+export const COLOMBIAN_BANKS = [
+    { name: 'Bancolombia', color: '#FDDA24', textColor: '#000000' },
+    { name: 'Nequi', color: '#21002d', textColor: '#ffffff' },
+    { name: 'Daviplata / Davivienda', color: '#ed1c24', textColor: '#ffffff' },
+    { name: 'Nu Colombia', color: '#8231b3', textColor: '#ffffff' },
+    { name: 'BBVA', color: '#004481', textColor: '#ffffff' },
+    { name: 'Banco de Bogotá', color: '#003e7e', textColor: '#ffffff' },
+    { name: 'Banco de Occidente', color: '#007a33', textColor: '#ffffff' },
+    { name: 'Banco Popular', color: '#005432', textColor: '#ffffff' },
+    { name: 'Scotiabank Colpatria', color: '#ee0000', textColor: '#ffffff' },
+    { name: 'Itaú', color: '#ff6900', textColor: '#ffffff' },
+    { name: 'Lulo Bank', color: '#d4ff00', textColor: '#000000' },
+    { name: 'RappiPay', color: '#ff441f', textColor: '#ffffff' },
+    { name: 'Efectivo / Caja', color: '#4caf50', textColor: '#ffffff' },
+].sort((a, b) => a.name.localeCompare(b.name));
