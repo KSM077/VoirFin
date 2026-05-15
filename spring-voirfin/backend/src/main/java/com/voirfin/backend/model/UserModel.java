@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 public class UserModel {
     
     @Id
-    @GeneratedValue // Deja que Hibernate maneje la estrategia con el driver de Postgres
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "firebase_uid", unique = true, nullable = false) // Agregado nullable = false
+    @Column(name = "firebase_uid", unique = true, nullable = false)
     private String firebaseUid;
 
     @Column(unique = true, nullable = false, length = 50)
