@@ -11,10 +11,6 @@ const LoginWithGoogle = () => {
   try {
     const provider = new GoogleAuthProvider();
     const userCredential = await signInWithPopup(auth, provider);
-    if (!userCredential.user) throw new Error("Error al loguear con google");
-    
-    const userRef = doc(db, "users", userCredential.user.uid);
-    const userDb = await getDoc(userRef);
     
     const userData = {
       firebaseUid: userCredential.user.uid,
@@ -23,24 +19,30 @@ const LoginWithGoogle = () => {
       avatar: userCredential.user.photoURL || "default.png",
     };
 
+    const userRef = doc(db, "users", userCredential.user.uid);
+    const userDb = await getDoc(userRef);
     if (!userDb.exists()) {
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        username: userData.username,
-        email: userData.email,
-        avatar: userData.avatar,
-      });
+      await setDoc(userRef, userData);
     }
 
-    // CONEXIÓN AL BACKEND (POSTGRES)
-    await fetch(`${API_URL}/api/users/sync`, {
+    console.log("Intentando sincronizar con el backend en:", `${API_URL}/api/users/sync`);
+
+    const response = await fetch(`${API_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
 
-    navigate("/dashboard");
+    if (response.ok) {
+      console.log("Sincronización exitosa");
+      navigate("/dashboard");
+    } else {
+      console.error("El backend respondió con error:", response.status);
+    }
+
   } catch (error) {
-    console.log(error);
+    console.error("Error completo en el proceso:", error);
+    alert("Hubo un problema al conectar con el servidor. Revisa la consola.");
   }
   };
 

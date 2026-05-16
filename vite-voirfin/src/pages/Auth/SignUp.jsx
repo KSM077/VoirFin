@@ -25,8 +25,7 @@ const SignUp = () => {
   e.preventDefault();
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, dataForm.email, dataForm.password);
-    if (!userCredential.user) throw new Error("Error al crear el usuario");
-
+    
 
     await setDoc(doc(db, "users", userCredential.user.uid), {
       username: dataForm.username,
@@ -35,21 +34,29 @@ const SignUp = () => {
       enabled: false
     });
 
-    await fetch(`${API_URL}/api/users/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        firebaseUid: userCredential.user.uid,
-        username: dataForm.username, 
-        email: dataForm.email,     
-        avatar: "default.png"
-      }),
-    });
+
+    try {
+      await fetch(`${API_URL}/api/users/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firebaseUid: userCredential.user.uid,
+          username: dataForm.username, 
+          email: dataForm.email,     
+          avatar: "default.png"
+        }),
+      });
+    } catch (syncError) {
+      console.error("Error sincronizando con Postgres:", syncError);
+    }
     
     await sendEmailVerification(userCredential.user);
+    alert("Usuario creado. Revisa tu correo para verificar la cuenta.");
     navigate("/login");
+    
   } catch (error) {
     console.error("Error en registro:", error);
+    alert("Error al crear la cuenta: " + error.message);
   }
   };
 

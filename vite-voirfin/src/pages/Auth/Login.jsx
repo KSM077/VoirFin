@@ -18,22 +18,11 @@ const Login = () => {
   const handleChangeInput = (e) =>
     setDataForm((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
 
-  // ... dentro de handleSubmitForm en Login.js
-const handleSubmitForm = async (e) => {
+  const handleSubmitForm = async (e) => {
   e.preventDefault();
   try {
     const userCredential = await signInWithEmailAndPassword(auth, dataForm.email, dataForm.password);
-    
-    // COMENTA ESTE BLOQUE TEMPORALMENTE
-    /*
-    if (!userCredential.user.emailVerified) {
-      await auth.signOut();
-      alert("Por favor, verifica tu correo antes de iniciar sesión.");
-      return;
-    }
-    */
 
-    // Sincronización con el backend (Postgres)
     const userData = {
       firebaseUid: userCredential.user.uid,
       username: userCredential.user.displayName || dataForm.email.split("@")[0],
@@ -41,14 +30,19 @@ const handleSubmitForm = async (e) => {
       avatar: "default.png"
     };
 
-    await fetch(`${API_URL}/api/users/sync`, {
+   
+    const response = await fetch(`${API_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
-    
-    // REDIRECCIÓN CORRECTA
-    navigate("/dashboard"); 
+
+    if (response.ok) {
+      navigate("/dashboard"); 
+    } else {
+      console.warn("Firebase ok, pero Postgres falló. Status:", response.status);
+      navigate("/dashboard");
+    }
 
   } catch (error) {
     console.error("Error en login:", error.message);
