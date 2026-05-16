@@ -1,6 +1,6 @@
 import google from '../../../public/google.jpg'
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth, db } from "../../components/Firebase/FirebaseService";
+import { auth, db, API_URL } from "../../components/Firebase/FirebaseService";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
@@ -32,7 +32,7 @@ const LoginWithGoogle = () => {
     }
 
     // CONEXIÓN AL BACKEND (POSTGRES)
-    await fetch('http://localhost:8080/api/users/sync', {
+    await fetch(`${API_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),

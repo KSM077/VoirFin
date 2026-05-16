@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../../components/Firebase/FirebaseService";
+import { auth, db, API_URL } from "../../components/Firebase/FirebaseService";
 import LoginWithGoogle from "./LoginWithGoogle";
 import ForgotPassword from "./ForgotPwd"
 import "./Auth.css";
@@ -41,7 +41,7 @@ const handleSubmitForm = async (e) => {
       avatar: "default.png"
     };
 
-    await fetch('http://localhost:8080/api/users/sync', {
+    await fetch(`${API_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),

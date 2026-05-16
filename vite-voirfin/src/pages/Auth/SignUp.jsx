@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { auth, db } from "../../components/Firebase/FirebaseService"; 
+import { auth, db, API_URL } from "../../components/Firebase/FirebaseService"; 
 import { setDoc, doc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import LoginWithGoogle from "./LoginWithGoogle";
@@ -35,7 +35,7 @@ const SignUp = () => {
       enabled: false
     });
 
-    await fetch('http://localhost:8080/api/users/sync', {
+    await fetch(`${API_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
