@@ -79,14 +79,14 @@ export function BankProvider({ children }) {
       const transactions = await res.json();
 
 
-      return transactions.map((tx) => ({
-        id:          tx.id,
-        description: tx.reason ?? tx.description ?? "Sin descripción",
-        amount:      tx.amount,
-        date:        tx.date ?? tx.createdAt,
-        type:        tx.type,
-        categoryId:  tx.categoryId ?? null,
-      }));
+    return transactions.map((tx) => ({
+      id: tx.id,
+      description: tx.reason || "Sin descripción",
+      amount: Number(tx.amount || 0), 
+      date: tx.date || new Date().toISOString(),
+      type: tx.type,
+      categoryId: tx.categoryId || null,
+    }));  
     } catch (err) {
       console.error("[BankContext] viewTransactions:", err);
       return [];
