@@ -1,6 +1,7 @@
 package com.voirfin.backend.controller;
 
 import com.voirfin.backend.model.BankModel;
+import com.voirfin.backend.model.TransactionModel;
 import com.voirfin.backend.service.BankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,14 +13,17 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/banks")
+// Ajusta el origen al dominio de tu frontend en producción
+@CrossOrigin(origins = { "http://localhost:5173", "https://voirfin.vercel.app" })
 public class BankController {
 
     @Autowired
     private BankService bankService;
 
     // ── GET /api/banks?uid={firebaseUid} ──────────────────────────────────────
+    // Devuelve los bancos del usuario. El uid es SIEMPRE requerido.
     @GetMapping
-    public ResponseEntity<List<BankModel>> getBanks(@RequestParam String uid) {
+    public ResponseEntity<List<BankModel>> getBanks(@RequestParam("uid") String uid) {
         return ResponseEntity.ok(bankService.getBanksByUser(uid));
     }
 
@@ -38,9 +42,22 @@ public class BankController {
     // ── DELETE /api/banks/{bankId}?uid={firebaseUid} ──────────────────────────
     @DeleteMapping("/{bankId}")
     public ResponseEntity<Void> deleteBank(@PathVariable UUID bankId,
-                                           @RequestParam String uid) {
+                                           @RequestParam("uid") String uid) {
         bankService.deleteBank(uid, bankId);
         return ResponseEntity.noContent().build();
+    }
+
+    // ── GET /api/banks/{bankId}/transactions?uid={firebaseUid} ────────────────
+    // NUEVO: endpoint dedicado para "el ojo". Filtra por bankId Y firebaseUid
+    // para garantizar que solo el dueño pueda ver sus transacciones.
+    @GetMapping("/{bankId}/transactions")
+    public ResponseEntity<List<TransactionModel>> getTransactions(
+            @PathVariable UUID bankId,
+            @RequestParam("uid") String uid) {
+
+        List<TransactionModel> transactions =
+                bankService.getTransactionsByBank(uid, bankId);
+        return ResponseEntity.ok(transactions);
     }
 
     // ── POST /api/banks/{bankId}/transactions ─────────────────────────────────
@@ -62,7 +79,7 @@ public class BankController {
     @DeleteMapping("/{bankId}/transactions/{txId}")
     public ResponseEntity<BankModel> deleteTransaction(@PathVariable UUID bankId,
                                                        @PathVariable UUID txId,
-                                                       @RequestParam String uid) {
+                                                       @RequestParam("uid") String uid) {
         BankModel updated = bankService.deleteTransaction(uid, bankId, txId);
         return ResponseEntity.ok(updated);
     }

@@ -5,8 +5,10 @@ import com.voirfin.backend.model.TransactionModel;
 import com.voirfin.backend.repository.BankRepository;
 import com.voirfin.backend.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,6 +36,17 @@ public class BankService {
         bank.setColor(color);
         return bankRepository.save(bank);
     }
+
+    public List<TransactionModel> getTransactionsByBank(String firebaseUid, UUID bankId) {
+    bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Banco no encontrado o acceso denegado"
+            ));
+ 
+    return transactionRepository.findByBankIdAndOwner(bankId, firebaseUid);
+    }
+
 
     @Transactional
     public void deleteBank(String firebaseUid, UUID bankId) {
