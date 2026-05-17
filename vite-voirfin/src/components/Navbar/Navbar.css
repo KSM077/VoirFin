@@ -1,6 +1,7 @@
 .sidebar {
     width: 250px;
-    height: 970px;
+    /* MODIFICADO: 970px fijo → 100vh para adaptarse a cualquier pantalla sin cambiar la apariencia */
+    height: 100vh;
     background-color: rgba(237, 246, 237, 0.9);
     color: white;
     position: fixed;
@@ -54,4 +55,87 @@
 .main-content {
     margin-left: 250px;
     padding: 20px;
+}
+
+/* =============================================
+   RESPONSIVE — TABLETS (max-width: 1024px)
+   ============================================= */
+@media (max-width: 1024px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar.open {
+        left: 10px;
+        width: 220px;
+    }
+
+    .logout-button {
+        top: 260px;
+    }
+}
+
+/* =============================================
+   RESPONSIVE — MÓVILES LANDSCAPE (max-width: 768px)
+   ============================================= */
+@media (max-width: 768px) {
+    .sidebar {
+        top: 0;
+        border-radius: 0 20px 20px 0;
+        height: 100vh;
+        width: 75%;
+        max-width: 280px;
+    }
+
+    .sidebar.open {
+        left: 0;
+        width: 75%;
+        max-width: 280px;
+    }
+
+    .sidebar-logo {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        object-fit: contain;
+    }
+
+    .logout-button {
+        top: 200px;
+        left: 30px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .hamburger-btn {
+        top: 15px;
+        left: 15px;
+    }
+}
+
+/* =============================================
+   RESPONSIVE — MÓVILES PORTRAIT (max-width: 480px)
+   ============================================= */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 85%;
+        max-width: 320px;
+    }
+
+    .sidebar.open {
+        width: 85%;
+        max-width: 320px;
+    }
+
+    .logout-button {
+        top: 180px;
+        left: 20px;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
 }

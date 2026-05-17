@@ -26,7 +26,6 @@
     margin-top: -80px;
 }
 
-
 .bank-cards {
     margin-top: -100px;
     display: flex;
@@ -49,7 +48,6 @@
 .bank-chip:hover {
     transform: scale(1.05);
 }
-
 
 .detail-panel {
     background: rgba(247, 252, 247, 0.8);
@@ -75,14 +73,12 @@
     padding-bottom: 10px;
 }
 
-
 .panel-body {
     display: flex;
     flex-direction: column;
     gap: 25px;
     width: 100%;
 }
-
 
 .entry-block {
     display: flex;
@@ -94,7 +90,6 @@
     width: 100%;
     box-sizing: border-box;
 }
-
 
 .entry-info {
     display: flex;
@@ -114,7 +109,6 @@
     margin: 5px 0 0 0;
     font-weight: bold;
 }
-
 
 .entry-controls {
     display: flex;
@@ -137,7 +131,6 @@
     position: relative;
     top: -135px;
 }
-
 
 .btn-add {
     padding: 10px 15px;
@@ -184,7 +177,6 @@
     background-color: #e32626;
     color: white;
 }
-
 
 .action-buttons-grid {
     display: flex;
@@ -277,7 +269,6 @@
     border-radius: 8px;
     border: none;
     cursor: pointer;
-
 }
 
 .btn-return {
@@ -297,7 +288,6 @@
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -384,7 +374,6 @@
     cursor: pointer;
     font-weight: bold;
     height: 50px;
-
 }
 
 .modal-category {
@@ -402,7 +391,6 @@
     height: auto;
     position: relative;
 }
-
 
 .category-balance-display {
     display: flex;
@@ -472,4 +460,266 @@
     align-items: center;
     gap: 1rem;
     margin-top: 150px;
+}
+
+/* =============================================
+   RESPONSIVE — TABLETS (max-width: 1024px)
+   ============================================= */
+@media (max-width: 1024px) {
+    .dash-container {
+        padding: 80px 40px;
+    }
+
+    .totalBalance {
+        height: auto;
+        min-height: 100px;
+        padding: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .bank-cards {
+        margin-top: -60px;
+    }
+
+    .detail-panel {
+        margin-top: 100px;
+        padding: 25px;
+    }
+
+    .panel-header {
+        font-size: 24px;
+    }
+
+    .entry-actions {
+        top: -80px;
+    }
+
+    .action-buttons-grid {
+        margin-top: -60px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        margin-top: -30px;
+    }
+
+    .form-group input {
+        width: 100%;
+    }
+
+    .form-actions {
+        top: -70px;
+    }
+
+    .modal-actions {
+        top: -80px;
+        margin: 20px;
+    }
+
+    .btn-return {
+        width: 100%;
+    }
+
+    .modal-formu {
+        width: 90%;
+        top: 80px;
+    }
+
+    .piechart {
+        margin-top: 80px;
+        flex-wrap: wrap;
+    }
+
+    .modal-category {
+        margin-top: 80px;
+    }
+}
+
+/* =============================================
+   RESPONSIVE — MÓVILES LANDSCAPE (max-width: 768px)
+   ============================================= */
+@media (max-width: 768px) {
+    /* ERROR 3B: padding-top asegura que el balance quede debajo
+       del hamburger-btn (position: fixed, top: 60px + su altura ~40px) */
+    .dash-container {
+        padding: 20px;
+        padding-top: 110px;
+    }
+
+    .totalBalance {
+        height: auto;
+        margin-top: 0;
+        padding: 15px 10px;
+        flex-wrap: wrap;
+        gap: 8px;
+        border-radius: 20px;
+    }
+
+    /* ERROR 3A: separación natural entre tarjetas y el bloque de balance */
+    .bank-cards {
+        margin-top: 20px;
+    }
+
+    /* ERROR 3: separación entre .delete-bank-btn y .detail-panel */
+    .delete-bank-btn {
+        margin-bottom: 20px;
+    }
+
+    .detail-panel {
+        /* ERROR 3: margen extra para que no choque con el botón de eliminar */
+        margin-top: 20px;
+        padding: 20px 15px;
+    }
+
+    .panel-header {
+        font-size: 20px;
+    }
+
+    .entry-block {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 15px;
+    }
+
+    .entry-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .entry-block input {
+        width: 100%;
+    }
+
+    .entry-actions {
+        top: 0;
+        position: static;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* ERROR 4: márgenes negativos grandes sacan los botones del panel en móvil */
+    .action-buttons-grid {
+        margin-top: 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .action-btn {
+        margin-top: 0;
+        min-width: 80px;
+    }
+
+    .form-group input {
+        width: 100%;
+    }
+
+    /* ERROR 5: top negativo saca los botones de acción fuera del panel */
+    .form-actions {
+        top: 0;
+        position: static;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .modal-actions {
+        top: 0;
+        position: static;
+        margin: 15px 0;
+        flex-wrap: wrap;
+    }
+
+    .btn-return {
+        width: 100%;
+        top: 10px;
+    }
+
+    .modal-formu {
+        width: 95%;
+        top: 30px;
+        margin: 20px auto;
+    }
+
+    .piechart {
+        margin-top: 30px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .modal-category {
+        margin-top: 30px;
+        padding: 20px 15px;
+    }
+
+    .color-grid {
+        top: 0;
+        position: static;
+        flex-wrap: wrap;
+    }
+}
+
+/* =============================================
+   RESPONSIVE — MÓVILES PORTRAIT (max-width: 480px)
+   ============================================= */
+@media (max-width: 480px) {
+    .dash-container {
+        padding: 20px 10px;
+    }
+
+    .totalBalance {
+        padding: 12px 8px;
+        gap: 5px;
+    }
+
+    .panel-header {
+        font-size: 18px;
+    }
+
+    .entry-amount {
+        font-size: 1.1rem;
+    }
+
+    .btn-add,
+    .btn-remove,
+    .btn-cancel {
+        min-width: 90px;
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+
+    .action-btn {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .bank-chip {
+        width: 130px;
+        height: 44px;
+        font-size: 0.8rem;
+    }
+
+    .category-chip {
+        width: 130px;
+        height: 44px;
+        font-size: 0.85rem;
+    }
+
+    .detail-panel {
+        padding: 15px 10px;
+    }
+
+    .modal-formu {
+        width: 98%;
+        padding: 15px;
+        top: 15px;
+    }
+
+    .modal-category {
+        padding: 15px;
+    }
+
+    .modal-overlay {
+        padding: 15px;
+    }
 }

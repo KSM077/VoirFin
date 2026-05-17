@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro&display=swap');
 
-*{
+* {
   box-sizing: border-box;
   padding: 0px;
   margin: 0px;
 }
 
-body{
+body {
   font-family: "Kdam Thmor Pro", sans-serif;
-  height: 100vh;
+  /* MODIFICADO: height → min-height para que el contenido largo no quede cortado en pantallas pequeñas */
+  min-height: 100vh;
 }
-
