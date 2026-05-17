@@ -1,159 +1,200 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { auth } from "../components/Firebase/FirebaseService";
-import { onAuthStateChanged } from "firebase/auth"
+import { auth, API_URL } from '../components/Firebase/FirebaseService'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const BankContext = createContext()
 
 export const BankProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [banks, setBanks] = useState([])
+    const [selectedBank, setSelectedBank] = useState(null)
 
-    const [banks, setBanks] = useState([]);
-    const [selectedBank, setSelectedBank] = useState(null);
+    // Categorías siguen siendo locales (no requieren sync de DB)
     const [categories, setCategories] = useState([
         { id: '1', name: 'Hogar', icon: '🏠', bankId: null },
         { id: '2', name: 'Comida', icon: '🍔', bankId: null }
-    ]);
+    ])
 
-
+    // ── Hydration: carga bancos desde el backend al autenticarse ──────────────
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
-                const userUid = currentUser.uid;
-                const savedBanks = localStorage.getItem(`voirfin_banks_${userUid}`);
-                const savedCategories = localStorage.getItem(`voirfin_categories_${userUid}`);
-
-                setBanks(savedBanks ? JSON.parse(savedBanks) : []);
-                setCategories(savedCategories ? JSON.parse(savedCategories) : [
-                    { id: '1', name: 'Hogar', icon: '🏠', bankId: null },
-                    { id: '2', name: 'Comida', icon: '🍔', bankId: null }
-                ]);
-                setUser(currentUser);
+                setUser(currentUser)
+                try {
+                    const res = await fetch(
+                        `${API_URL}/api/banks?uid=${currentUser.uid}`
+                    )
+                    if (res.ok) {
+                        const data = await res.json()
+                        // Normaliza la forma del JSON del backend al shape del frontend
+                        setBanks(data.map(normalizeBankFromServer))
+                    }
+                } catch (err) {
+                    console.error('[VoirFin] Error cargando bancos:', err)
+                }
             } else {
-                setBanks([]);
-                setCategories([]);
-                setSelectedBank(null);
-                setUser(null);
+                // Limpieza total al cerrar sesión
+                setUser(null)
+                setBanks([])
+                setSelectedBank(null)
             }
-            setLoading(false);
-        });
+            setLoading(false)
+        })
 
-        return () => unsubscribe();
-    }, []);
+        return () => unsubscribe()
+    }, [])
 
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem(`voirfin_banks_${user.uid}`, JSON.stringify(banks));
-        }
-    }, [banks, user]);
+    // ── Helpers de normalización ──────────────────────────────────────────────
+    // Convierte la respuesta del backend al formato que usa el frontend
+    const normalizeBankFromServer = (bank) => ({
+        id: bank.id,
+        name: bank.name,
+        color: bank.color,
+        income: bank.income ?? 0,
+        expense: bank.expense ?? 0,
+        loan: bank.loan ?? 0,
+        transactions: (bank.transactions ?? []).map(t => ({
+            id: t.id,
+            type: t.type,
+            amount: t.amount,
+            reason: t.reason,
+            categoryId: t.categoryId,
+            date: t.date
+        }))
+    })
 
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem(`voirfin_categories_${user.uid}`, JSON.stringify(categories));
-        }
-    }, [categories, user]);
-
-
+    // ── Calculos derivados (sin cambios) ──────────────────────────────────────
     const getBalance = (bank) => bank.income - bank.expense + bank.loan
     const totalBalance = banks.reduce((sum, b) => sum + getBalance(b), 0)
 
-    const getTotalCategorized = () => {
-        return banks.reduce((acc, bank) => {
+    const getTotalCategorized = () =>
+        banks.reduce((acc, bank) => {
             const catSum = bank.transactions
                 .filter(t => t.type === 'expense' && t.categoryId)
                 .reduce((s, t) => s + t.amount, 0)
             return acc + catSum
         }, 0)
-    }
 
     const freeBalance = totalBalance - getTotalCategorized()
 
-
+    // ── Categorías (locales, sin cambio de flujo) ─────────────────────────────
     const addCategory = (name, icon, bankId) => {
         const newCat = { id: crypto.randomUUID(), name, icon, bankId }
         setCategories(prev => [...prev, newCat])
     }
 
-    const addBank = (name, color) => {
-        const newBank = {
-            id: crypto.randomUUID(),
-            name,
-            color,
-            income: 0,
-            expense: 0,
-            loan: 0,
-            transactions: []
-        }
-        setBanks(prev => [...prev, newBank])
-    }
-
-    const deleteBank = (bankId) => {
-        setBanks(prev => prev.filter(bank => bank.id !== bankId))
-        if (selectedBank && selectedBank.id === bankId) {
-            setSelectedBank(null)
+    // ── Bank CRUD ─────────────────────────────────────────────────────────────
+    const addBank = async (name, color) => {
+        try {
+            const res = await fetch(`${API_URL}/api/banks`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ firebaseUid: user.uid, name, color })
+            })
+            if (res.ok) {
+                const newBank = normalizeBankFromServer(await res.json())
+                setBanks(prev => [...prev, newBank])
+            }
+        } catch (err) {
+            console.error('[VoirFin] Error creando banco:', err)
         }
     }
 
-    const addTransaction = (bankId, type, amount, reason, categoryId = null) => {
+    const deleteBank = async (bankId) => {
+        try {
+            const res = await fetch(
+                `${API_URL}/api/banks/${bankId}?uid=${user.uid}`,
+                { method: 'DELETE' }
+            )
+            if (res.ok || res.status === 204) {
+                setBanks(prev => prev.filter(b => b.id !== bankId))
+                if (selectedBank?.id === bankId) setSelectedBank(null)
+            }
+        } catch (err) {
+            console.error('[VoirFin] Error eliminando banco:', err)
+        }
+    }
+
+    // ── Transaction CRUD ──────────────────────────────────────────────────────
+    const addTransaction = async (bankId, type, amount, reason, categoryId = null) => {
         const parsed = parseFloat(amount)
         if (isNaN(parsed)) return
 
-        const newTransaction = {
-            id: crypto.randomUUID(),
-            type,
-            amount: parsed,
-            reason: reason || 'Sin descripción',
-            categoryId, 
-            date: new Date().toISOString()
+        try {
+            const res = await fetch(`${API_URL}/api/banks/${bankId}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    firebaseUid: user.uid,
+                    type,
+                    amount: parsed,
+                    reason: reason || 'Sin descripción',
+                    categoryId
+                })
+            })
+            if (res.ok) {
+                const updatedBank = normalizeBankFromServer(await res.json())
+                setBanks(prev => prev.map(b => b.id === bankId ? updatedBank : b))
+                // Sincroniza el banco seleccionado si está activo
+                if (selectedBank?.id === bankId) setSelectedBank(updatedBank)
+            }
+        } catch (err) {
+            console.error('[VoirFin] Error añadiendo transacción:', err)
         }
-
-        setBanks(prev => prev.map(b => {
-            if (b.id !== bankId) return b
-            return {
-                ...b,
-                [type]: b[type] + parsed,
-                transactions: [newTransaction, ...b.transactions]
-            }
-        }))
     }
 
-    const deleteTransaction = (bankId, transactionId) => {
-        setBanks(prev => prev.map(b => {
-            if (b.id !== bankId) return b
-            const transaction = b.transactions.find(t => t.id === transactionId)
-            if (!transaction) return b
-            return {
-                ...b,
-                [transaction.type]: Math.max(0, b[transaction.type] - transaction.amount),
-                transactions: b.transactions.filter(t => t.id !== transactionId)
+    const deleteTransaction = async (bankId, transactionId) => {
+        try {
+            const res = await fetch(
+                `${API_URL}/api/banks/${bankId}/transactions/${transactionId}?uid=${user.uid}`,
+                { method: 'DELETE' }
+            )
+            if (res.ok) {
+                const updatedBank = normalizeBankFromServer(await res.json())
+                setBanks(prev => prev.map(b => b.id === bankId ? updatedBank : b))
+                if (selectedBank?.id === bankId) setSelectedBank(updatedBank)
             }
-        }))
+        } catch (err) {
+            console.error('[VoirFin] Error eliminando transacción:', err)
+        }
     }
 
-    const editTransaction = (bankId, transactionId, newAmount, newReason) => {
+    const editTransaction = async (bankId, transactionId, newAmount, newReason) => {
         const parsedNew = parseFloat(newAmount)
         if (isNaN(parsedNew)) return
-        setBanks(prev => prev.map(b => {
-            if (b.id !== bankId) return b
-            const transactions = b.transactions.map(t => {
-                if (t.id !== transactionId) return t
-                const diff = parsedNew - t.amount
-                b[t.type] = Math.max(0, b[t.type] + diff)
-                return { ...t, amount: parsedNew, reason: newReason }
-            })
-            return { ...b, transactions }
-        }))
+
+        try {
+            const res = await fetch(
+                `${API_URL}/api/banks/${bankId}/transactions/${transactionId}`,
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firebaseUid: user.uid,
+                        amount: parsedNew,
+                        reason: newReason
+                    })
+                }
+            )
+            if (res.ok) {
+                const updatedBank = normalizeBankFromServer(await res.json())
+                setBanks(prev => prev.map(b => b.id === bankId ? updatedBank : b))
+                if (selectedBank?.id === bankId) setSelectedBank(updatedBank)
+            }
+        } catch (err) {
+            console.error('[VoirFin] Error editando transacción:', err)
+        }
     }
 
-
-    if (loading) return null;
+    if (loading) return null
 
     return (
         <BankContext.Provider value={{
             banks, selectedBank, setSelectedBank,
-            categories, addCategory, 
+            categories, addCategory,
             addBank, addTransaction, deleteBank, deleteTransaction, editTransaction,
-            getBalance, totalBalance, freeBalance 
+            getBalance, totalBalance, freeBalance
         }}>
             {children}
         </BankContext.Provider>

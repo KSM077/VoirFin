@@ -463,9 +463,6 @@
     margin-top: 150px;
 }
 
-/* =============================================
-   RESPONSIVE — TABLETS (max-width: 1024px)
-   ============================================= */
 @media (max-width: 1024px) {
     .dash-container {
         padding: 80px 40px;
@@ -511,11 +508,11 @@
         width: 100%;
     }
 
-    .form-actions .btn-cancel{
+    .form-actions .btn-cancel {
         top: 120px;
     }
 
-    .form-actions .btn-confirm{
+    .form-actions .btn-confirm {
         top: 220px;
     }
 
@@ -548,13 +545,8 @@
     }
 }
 
-/* =============================================
-   RESPONSIVE — MÓVILES LANDSCAPE (max-width: 768px)
-   ============================================= */
 @media (max-width: 768px) {
 
-    /* ERROR 3B: padding-top asegura que el balance quede debajo
-       del hamburger-btn (position: fixed, top: 60px + su altura ~40px) */
     .dash-container {
         padding: 20px;
         padding-top: 110px;
@@ -568,18 +560,15 @@
         border-radius: 20px;
     }
 
-    /* ERROR 3A: separación natural entre tarjetas y el bloque de balance */
     .bank-cards {
         margin-top: 5px;
     }
 
-    /* ERROR 3: separación entre .delete-bank-btn y .detail-panel */
     .delete-bank-btn {
         margin-bottom: 20px;
     }
 
     .detail-panel {
-        /* ERROR 3: margen extra para que no choque con el botón de eliminar */
         margin-top: 100px;
         padding: 20px 15px;
     }
@@ -611,7 +600,6 @@
         justify-content: flex-end;
     }
 
-    /* ERROR 4: márgenes negativos grandes sacan los botones del panel en móvil */
     .action-buttons-grid {
         margin-top: 0px;
         flex-wrap: wrap;
@@ -631,7 +619,7 @@
         width: 100%;
     }
 
-    /* ERROR 5: top negativo saca los botones de acción fuera del panel */
+
     .form-actions {
         top: 0;
         position: static;
@@ -647,11 +635,11 @@
         margin-top: -120px;
     }
 
-    .btn-confirm{
+    .btn-confirm {
         margin-top: -50px;
     }
 
-    .btn-cancel{
+    .btn-cancel {
         margin-top: -50px;
     }
 
@@ -695,9 +683,6 @@
     }
 }
 
-/* =============================================
-   RESPONSIVE — MÓVILES PORTRAIT (max-width: 480px)
-   ============================================= */
 @media (max-width: 480px) {
     .dash-container {
         padding: 20px 10px;
@@ -729,7 +714,7 @@
         font-size: 0.85rem;
     }
 
-    
+
     .action-buttons-grid {
         margin-top: 10px;
     }
@@ -764,8 +749,8 @@
         padding: 55px;
         margin-top: -50px;
     }
-    
-    .transaction-form-container button{
+
+    .transaction-form-container button {
         margin-top: -50px;
         padding: 5px;
     }
