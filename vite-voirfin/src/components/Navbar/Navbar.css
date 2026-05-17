@@ -1,7 +1,6 @@
 .sidebar {
     width: 250px;
-    /* MODIFICADO: 970px fijo → 100vh para adaptarse a cualquier pantalla sin cambiar la apariencia */
-    height: 100vh;
+    height: 91%;
     background-color: rgba(237, 246, 237, 0.9);
     color: white;
     position: fixed;
@@ -15,7 +14,7 @@
 
 
 .sidebar.open {
-    left: 20px;
+    left: 0px;
 }
 
 .hamburger-btn {
@@ -48,7 +47,7 @@
 
 .logout-button {
     position: relative;
-    top: 320px;
+    top: 250px;
     left: 40px;
 }
 
@@ -62,16 +61,18 @@
    ============================================= */
 @media (max-width: 1024px) {
     .main-content {
-        margin-left: 0;
+        margin-left: 10px;
     }
 
     .sidebar.open {
         left: 10px;
         width: 220px;
+        height: 91%;
     }
 
     .logout-button {
-        top: 260px;
+        top: 200px;
+
     }
 }
 
@@ -80,10 +81,10 @@
    ============================================= */
 @media (max-width: 768px) {
     .sidebar {
-        top: 0;
+        top: 50px;
         border-radius: 0 20px 20px 0;
-        height: 100vh;
-        width: 75%;
+        height: 91%;
+        width: 450px;
         max-width: 280px;
     }
 
@@ -91,6 +92,7 @@
         left: 0;
         width: 75%;
         max-width: 280px;
+        top: 50px;
     }
 
     .sidebar-logo {
@@ -101,8 +103,8 @@
     }
 
     .logout-button {
-        top: 200px;
-        left: 30px;
+        top: 350px;
+        left: 65px;
     }
 
     .main-content {
@@ -111,7 +113,7 @@
     }
 
     .hamburger-btn {
-        top: 15px;
+        top: 70px;
         left: 15px;
     }
 }
@@ -122,7 +124,6 @@
 @media (max-width: 480px) {
     .sidebar {
         width: 85%;
-        max-width: 320px;
     }
 
     .sidebar.open {
@@ -131,8 +132,8 @@
     }
 
     .logout-button {
-        top: 180px;
-        left: 20px;
+        top: 350px;
+        left: 80px;
     }
 
     .main-content {
