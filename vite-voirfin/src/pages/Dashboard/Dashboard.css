@@ -279,7 +279,7 @@
     border: none;
     cursor: pointer;
     position: relative;
-    top: 20px;
+    top: 12px;
     width: 1000px;
 }
 
@@ -288,6 +288,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -476,6 +477,7 @@
         padding: 20px;
         flex-wrap: wrap;
         gap: 10px;
+        margin-top: 15px;
     }
 
     .bank-cards {
@@ -485,6 +487,7 @@
     .detail-panel {
         margin-top: 100px;
         padding: 25px;
+        margin-top: 150px;
     }
 
     .panel-header {
@@ -496,7 +499,7 @@
     }
 
     .action-buttons-grid {
-        margin-top: -60px;
+        margin-top: -110px;
         flex-wrap: wrap;
     }
 
@@ -508,8 +511,12 @@
         width: 100%;
     }
 
-    .form-actions {
-        top: -70px;
+    .form-actions .btn-cancel{
+        top: 120px;
+    }
+
+    .form-actions .btn-confirm{
+        top: 220px;
     }
 
     .modal-actions {
@@ -523,7 +530,7 @@
 
     .modal-formu {
         width: 90%;
-        top: 80px;
+        top: 100px;
     }
 
     .piechart {
@@ -532,7 +539,12 @@
     }
 
     .modal-category {
-        margin-top: 80px;
+        margin-top: 150px;
+    }
+
+
+    .modal-overlay {
+        margin-top: -230px;
     }
 }
 
@@ -540,6 +552,7 @@
    RESPONSIVE — MÓVILES LANDSCAPE (max-width: 768px)
    ============================================= */
 @media (max-width: 768px) {
+
     /* ERROR 3B: padding-top asegura que el balance quede debajo
        del hamburger-btn (position: fixed, top: 60px + su altura ~40px) */
     .dash-container {
@@ -549,7 +562,6 @@
 
     .totalBalance {
         height: auto;
-        margin-top: 0;
         padding: 15px 10px;
         flex-wrap: wrap;
         gap: 8px;
@@ -558,7 +570,7 @@
 
     /* ERROR 3A: separación natural entre tarjetas y el bloque de balance */
     .bank-cards {
-        margin-top: 20px;
+        margin-top: 5px;
     }
 
     /* ERROR 3: separación entre .delete-bank-btn y .detail-panel */
@@ -568,7 +580,7 @@
 
     .detail-panel {
         /* ERROR 3: margen extra para que no choque con el botón de eliminar */
-        margin-top: 20px;
+        margin-top: 100px;
         padding: 20px 15px;
     }
 
@@ -601,9 +613,13 @@
 
     /* ERROR 4: márgenes negativos grandes sacan los botones del panel en móvil */
     .action-buttons-grid {
-        margin-top: 16px;
+        margin-top: 0px;
         flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .action-buttons-grid .action-btn {
+        margin-top: -100px;
     }
 
     .action-btn {
@@ -619,8 +635,24 @@
     .form-actions {
         top: 0;
         position: static;
-        margin-top: 12px;
+        margin-top: 50px;
         flex-wrap: wrap;
+    }
+
+    .form-actions .btn-confirm {
+        margin-top: -220px;
+    }
+
+    .form-actions .btn-cancel {
+        margin-top: -120px;
+    }
+
+    .btn-confirm{
+        margin-top: -50px;
+    }
+
+    .btn-cancel{
+        margin-top: -50px;
     }
 
     .modal-actions {
@@ -628,6 +660,10 @@
         position: static;
         margin: 15px 0;
         flex-wrap: wrap;
+    }
+
+    .modal-actions .btn-create {
+        margin-top: -50px;
     }
 
     .btn-return {
@@ -693,6 +729,11 @@
         font-size: 0.85rem;
     }
 
+    
+    .action-buttons-grid {
+        margin-top: 10px;
+    }
+
     .bank-chip {
         width: 130px;
         height: 44px;
@@ -720,6 +761,12 @@
     }
 
     .modal-overlay {
-        padding: 15px;
+        padding: 55px;
+        margin-top: -50px;
+    }
+    
+    .transaction-form-container button{
+        margin-top: -50px;
+        padding: 5px;
     }
 }

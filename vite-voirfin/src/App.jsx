@@ -7,15 +7,7 @@ import Reports from './pages/Reports/Reports';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path='/login' element={<Auth />} />
-      <Route element={<Navbar />}>
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='/budgetmanage' element={<BudgetManage />} />
-        <Route path='/reports' element={<Reports />}/>
-      </Route>
-    </Routes>
+    <Dashboard></Dashboard>
   );
 }
 
