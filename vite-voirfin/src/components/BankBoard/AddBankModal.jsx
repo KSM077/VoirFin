@@ -4,14 +4,19 @@ import { COLOMBIAN_BANKS } from '../../constants/Banks'
 import '../../pages/Dashboard/Dashboard.css'
 
 const AddBankModal = ({ onClose }) => {
-    const { addBank } = useBanks()
-    
+    const { createBank } = useBanks()
+
     const [selectedBankIndex, setSelectedBankIndex] = useState(0)
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         const bank = COLOMBIAN_BANKS[selectedBankIndex]
-        addBank(bank.name, bank.color)
-        onClose()
+        if (!bank) return
+        try {
+            await createBank(bank.name, bank.color)
+            onClose()
+        } catch (err) {
+            console.error('[AddBankModal] Error al crear banco:', err)
+        }
     }
 
     return (
@@ -20,8 +25,13 @@ const AddBankModal = ({ onClose }) => {
                 <h3>Nueva entidad</h3>
                 <div className="modal-form">
                     <label>Selecciona tu entidad financiera:</label>
-                    
-                    <select className="bank-select"value={selectedBankIndex}onChange={(e) => setSelectedBankIndex(e.target.value)}>
+
+                    <select
+                        className="bank-select"
+                        value={selectedBankIndex}
+
+                        onChange={(e) => setSelectedBankIndex(Number(e.target.value))}
+                    >
                         {COLOMBIAN_BANKS.map((bank, index) => (
                             <option key={bank.name} value={index}>
                                 {bank.name}
@@ -31,7 +41,14 @@ const AddBankModal = ({ onClose }) => {
 
                     <div className="bank-preview-container">
                         <span>Vista previa:</span>
-                        <div className="bank-chip preview" style={{backgroundColor: COLOMBIAN_BANKS[selectedBankIndex].color, color: COLOMBIAN_BANKS[selectedBankIndex].textColor, marginTop: '10px'}}>
+                        <div
+                            className="bank-chip preview"
+                            style={{
+                                backgroundColor: COLOMBIAN_BANKS[selectedBankIndex].color,
+                                color: COLOMBIAN_BANKS[selectedBankIndex].textColor,
+                                marginTop: '10px'
+                            }}
+                        >
                             {COLOMBIAN_BANKS[selectedBankIndex].name}
                         </div>
                     </div>

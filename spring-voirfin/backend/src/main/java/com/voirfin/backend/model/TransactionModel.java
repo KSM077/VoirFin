@@ -1,5 +1,6 @@
 package com.voirfin.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.Instant;
@@ -15,7 +16,7 @@ public class TransactionModel {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    // "income", "expense", or "loan"
+
     @Column(nullable = false, length = 20)
     private String type;
 
@@ -25,13 +26,13 @@ public class TransactionModel {
     @Column(length = 255)
     private String reason;
 
-    // Optional: id of the category (stored as string, matching front-end UUIDs)
     @Column(name = "category_id")
     private String categoryId;
 
     @Column(nullable = false)
     private Instant date;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id", nullable = false)
     private BankModel bank;
