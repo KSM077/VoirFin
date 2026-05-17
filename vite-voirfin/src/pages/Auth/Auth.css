@@ -447,13 +447,12 @@ button {
     }
 
     .auth-toggle {
-        top: 45vh;    /* 3vh de gap sobre el borde del círculo */
+        top: 45vh;   
         width: 95%;
-        height: 62vh; /* complementario del gap: 38+62 = 100vh */
-        transform: translateX(-50%) translateY(-80px);
+        height: 62vh; 
+        transform: translateX(-50%) translateY(-74px);
     }
 
-    /* ERROR 1 fix (portrait): el form sube exactamente 62vh */
     .auth-toggle.active {
         transform: translateX(-50%) translateY(-44vh);
     }

@@ -22,19 +22,20 @@ const Navbar = () => {
 
     return (
         <div className="layout-container">
+            <div className="hamburger-btn">
+                <Hamburger toggled={isOpen} toggle={setOpen} size={25} />
+            </div>
+
             <nav className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-                <div className="hamburger-btn">
-                    <Hamburger toggled={isOpen} toggle={setOpen} size={25} />
-                </div>
-                
+
                 <img src={logo} alt="logo" className="sidebar-logo" />
-                
+
                 <ul className="nav-links">
                     <li><Link to="/dashboard">🗃️ Menú Principal</Link></li>
                     <li><Link to="/reports">📈 Reportes Mensuales</Link></li>
                     <li><Link to="/budgetmanage">📋 Gestion de Presupuesto</Link></li>
                 </ul>
-                
+
                 <button onClick={handleLogout} className="logout-button">
                     ➜] Cerrar Sesión
                 </button>

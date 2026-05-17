@@ -666,7 +666,7 @@
     }
 
     .piechart {
-        margin-top: 30px;
+        margin-top: 100px;
         flex-direction: column;
         align-items: center;
     }
@@ -674,6 +674,11 @@
     .modal-category {
         margin-top: 30px;
         padding: 20px 15px;
+    }
+
+    .modal-overlay {
+        margin-top: 150px;
+        padding: 60px;
     }
 
     .color-grid {
@@ -691,6 +696,7 @@
     .totalBalance {
         padding: 12px 8px;
         gap: 5px;
+        margin-top: 100px;
     }
 
     .panel-header {
@@ -747,7 +753,7 @@
 
     .modal-overlay {
         padding: 55px;
-        margin-top: -50px;
+        margin-top: 150px;
     }
 
     .transaction-form-container button {
