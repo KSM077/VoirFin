@@ -11,10 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
 @RestController
 @RequestMapping("/api/banks")
 // Ajusta el origen al dominio de tu frontend en producción
-@CrossOrigin(origins = { "http://localhost:5173", "https://voirfin.vercel.app" })
+@CrossOrigin(origins = "*")
 public class BankController {
 
     @Autowired

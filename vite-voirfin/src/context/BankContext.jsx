@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "../components/Firebase/FirebaseService"; 
 
-const API_URL = import.meta.env.VITE_API_URL; // 
+const API_URL = import.meta.env.VITE_API_URL; 
 
 
 const BankContext = createContext(null);

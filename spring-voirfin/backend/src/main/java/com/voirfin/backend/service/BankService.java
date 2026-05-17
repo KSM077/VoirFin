@@ -34,6 +34,11 @@ public class BankService {
         bank.setFirebaseUid(firebaseUid);
         bank.setName(name);
         bank.setColor(color);
+        
+        bank.setIncome(0.0);
+        bank.setExpense(0.0);
+        bank.setLoan(0.0);
+        
         return bankRepository.save(bank);
     }
 
