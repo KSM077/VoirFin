@@ -2,7 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
-import { initializeAuth, browserLocalPersistence } from "firebase/auth";
+
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,9 +22,11 @@ const firebaseConfig = {
 const app       = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db        = getFirestore(app);
+const auth      = getAuth(app);
 
-const auth = initializeAuth(app, {
-  persistence: browserLocalPersistence,
+
+setPersistence(auth, browserLocalPersistence).catch((err) => {
+  console.error("[Firebase] No se pudo establecer persistencia:", err);
 });
 
 export const API_URL = import.meta.env.VITE_API_URL;
