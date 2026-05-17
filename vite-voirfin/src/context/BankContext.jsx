@@ -4,7 +4,6 @@ import { auth } from "../components/Firebase/FirebaseService";
 
 const API_URL = import.meta.env.VITE_API_URL; 
 
-
 const BankContext = createContext(null);
 
 export function BankProvider({ children }) {
@@ -12,6 +11,15 @@ export function BankProvider({ children }) {
   const [banks, setBanks]       = useState([]);
   const [loading, setLoading]   = useState(true);  
   const [error, setError]       = useState(null);
+
+  // Función interna para asegurar que los números nunca sean NaN o null
+  const sanitizeBank = (bank) => ({
+    ...bank,
+    income: Number(bank.income || 0),
+    expense: Number(bank.expense || 0),
+    loan: Number(bank.loan || 0),
+    transactions: bank.transactions || []
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -24,7 +32,6 @@ export function BankProvider({ children }) {
         setLoading(false);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -35,7 +42,8 @@ export function BankProvider({ children }) {
       const res = await fetch(`${API_URL}/api/banks?uid=${uid}`);
       if (!res.ok) throw new Error(`Error ${res.status}: no se pudieron cargar los bancos`);
       const data = await res.json();
-      setBanks(data);
+      // Sanitizamos todos los bancos al recibirlos
+      setBanks(data.map(sanitizeBank));
     } catch (err) {
       console.error("[BankContext] fetchBanks:", err);
       setError(err.message);
@@ -44,8 +52,8 @@ export function BankProvider({ children }) {
     }
   }, []);
 
-
-  const createBank = useCallback(async ({ name, color }) => {
+  // Simplificado: ahora recibe (name, color) directamente
+  const createBank = useCallback(async (name, color) => {
     if (!user) return;
     const res = await fetch(`${API_URL}/api/banks`, {
       method: "POST",
@@ -54,10 +62,9 @@ export function BankProvider({ children }) {
     });
     if (!res.ok) throw new Error("No se pudo crear el banco");
     const newBank = await res.json();
-    setBanks((prev) => [...prev, newBank]);
+    setBanks((prev) => [...prev, sanitizeBank(newBank)]);
     return newBank;
   }, [user]);
-
 
   const deleteBank = useCallback(async (bankId) => {
     if (!user) return;
@@ -68,7 +75,6 @@ export function BankProvider({ children }) {
     setBanks((prev) => prev.filter((b) => b.id !== bankId));
   }, [user]);
 
-
   const viewTransactions = useCallback(async (bankId) => {
     if (!user) return [];
     try {
@@ -78,21 +84,19 @@ export function BankProvider({ children }) {
       if (!res.ok) throw new Error(`Error ${res.status} al obtener transacciones`);
       const transactions = await res.json();
 
-
-    return transactions.map((tx) => ({
-      id: tx.id,
-      description: tx.reason || "Sin descripción",
-      amount: Number(tx.amount || 0), 
-      date: tx.date || new Date().toISOString(),
-      type: tx.type,
-      categoryId: tx.categoryId || null,
-    }));  
+      return transactions.map((tx) => ({
+        id: tx.id,
+        description: tx.reason || "Sin descripción",
+        amount: Number(tx.amount || 0), 
+        date: tx.date || new Date().toISOString(),
+        type: tx.type,
+        categoryId: tx.categoryId || null,
+      }));  
     } catch (err) {
       console.error("[BankContext] viewTransactions:", err);
       return [];
     }
   }, [user]);
-
 
   const addTransaction = useCallback(async (bankId, { type, amount, reason, categoryId }) => {
     if (!user) return;
@@ -109,7 +113,7 @@ export function BankProvider({ children }) {
     });
     if (!res.ok) throw new Error("No se pudo agregar la transacción");
     const updatedBank = await res.json();
-    setBanks((prev) => prev.map((b) => (b.id === bankId ? updatedBank : b)));
+    setBanks((prev) => prev.map((b) => (b.id === bankId ? sanitizeBank(updatedBank) : b)));
     return updatedBank;
   }, [user]);
 
@@ -122,7 +126,7 @@ export function BankProvider({ children }) {
     });
     if (!res.ok) throw new Error("No se pudo editar la transacción");
     const updatedBank = await res.json();
-    setBanks((prev) => prev.map((b) => (b.id === bankId ? updatedBank : b)));
+    setBanks((prev) => prev.map((b) => (b.id === bankId ? sanitizeBank(updatedBank) : b)));
     return updatedBank;
   }, [user]);
 
@@ -134,37 +138,25 @@ export function BankProvider({ children }) {
     );
     if (!res.ok) throw new Error("No se pudo eliminar la transacción");
     const updatedBank = await res.json();
-    setBanks((prev) => prev.map((b) => (b.id === bankId ? updatedBank : b)));
+    setBanks((prev) => prev.map((b) => (b.id === bankId ? sanitizeBank(updatedBank) : b)));
     return updatedBank;
   }, [user]);
-
 
   const logout = useCallback(async () => {
     setBanks([]);
     setUser(null);
-    setError(null);
+    setLoading(false);
     await firebaseSignOut(auth);
   }, []);
 
-
   const value = {
-    user,
-    banks,
-    loading,
-    error,
-    fetchBanks,
-    createBank,
-    deleteBank,
-    viewTransactions,
-    addTransaction,
-    editTransaction,
-    deleteTransaction,
-    logout,
+    user, banks, loading, error, fetchBanks,
+    createBank, deleteBank, viewTransactions,
+    addTransaction, editTransaction, deleteTransaction, logout,
   };
 
   return <BankContext.Provider value={value}>{children}</BankContext.Provider>;
 }
-
 
 export function useBanks() {
   const ctx = useContext(BankContext);

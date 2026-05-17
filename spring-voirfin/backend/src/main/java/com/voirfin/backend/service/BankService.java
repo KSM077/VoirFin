@@ -23,18 +23,22 @@ public class BankService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    // ── Bank CRUD ──────────────────────────────────────────────────────────────
+    // ── Gestión de Bancos ──────────────────────────────────────────────────────
 
     public List<BankModel> getBanksByUser(String firebaseUid) {
         return bankRepository.findByFirebaseUid(firebaseUid);
     }
 
+    /**
+     * Crea un nuevo banco inicializando los valores en 0.0 para evitar errores de NaN.
+     */
     public BankModel createBank(String firebaseUid, String name, String color) {
         BankModel bank = new BankModel();
         bank.setFirebaseUid(firebaseUid);
         bank.setName(name);
         bank.setColor(color);
         
+        // Inicialización explícita para evitar valores NULL en la base de datos
         bank.setIncome(0.0);
         bank.setExpense(0.0);
         bank.setLoan(0.0);
@@ -42,32 +46,27 @@ public class BankService {
         return bankRepository.save(bank);
     }
 
-    public List<TransactionModel> getTransactionsByBank(String firebaseUid, UUID bankId) {
-    bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
-            .orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Banco no encontrado o acceso denegado"
-            ));
- 
-    return transactionRepository.findByBankIdAndOwner(bankId, firebaseUid);
-    }
-
-
-    @Transactional
-    public void deleteBank(String firebaseUid, UUID bankId) {
+    public void deleteBank(UUID bankId, String firebaseUid) {
         BankModel bank = bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permiso"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banco no encontrado"));
         bankRepository.delete(bank);
     }
 
-    // ── Transaction CRUD ───────────────────────────────────────────────────────
+    // ── Gestión de Transacciones ───────────────────────────────────────────────
+
+    public List<TransactionModel> getTransactionsByBank(String firebaseUid, UUID bankId) {
+        // Validamos que el banco pertenezca al usuario antes de listar transacciones
+        bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banco no encontrado"));
+        
+        return transactionRepository.findByBankIdAndOwner(bankId, firebaseUid);
+    }
 
     @Transactional
-    public BankModel addTransaction(String firebaseUid, UUID bankId,
-                                    String type, double amount,
-                                    String reason, String categoryId) {
+    public BankModel addTransaction(String firebaseUid, UUID bankId, String type, 
+                                    double amount, String reason, String categoryId) {
         BankModel bank = bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permiso"));
+                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permisos"));
 
         TransactionModel tx = new TransactionModel();
         tx.setType(type);
@@ -77,8 +76,8 @@ public class BankService {
         tx.setDate(Instant.now());
         tx.setBank(bank);
 
-        // Update bank totals
-        switch (type) {
+        // Actualización de los totales del banco según el tipo de transacción
+        switch (type.toLowerCase()) {
             case "income"  -> bank.setIncome(bank.getIncome() + amount);
             case "expense" -> bank.setExpense(bank.getExpense() + amount);
             case "loan"    -> bank.setLoan(bank.getLoan() + amount);
@@ -91,14 +90,15 @@ public class BankService {
     @Transactional
     public BankModel deleteTransaction(String firebaseUid, UUID bankId, UUID transactionId) {
         BankModel bank = bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permiso"));
+                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permisos"));
 
         TransactionModel tx = transactionRepository.findByIdAndBankFirebaseUid(transactionId, firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Transacción no encontrada o sin permiso"));
+                .orElseThrow(() -> new RuntimeException("Transacción no encontrada o sin permisos"));
 
-        // Reverse bank totals
-        double safeAmount = Math.max(0, tx.getAmount());
-        switch (tx.getType()) {
+        double safeAmount = tx.getAmount();
+
+        // Revertimos el impacto de la transacción en los totales
+        switch (tx.getType().toLowerCase()) {
             case "income"  -> bank.setIncome(Math.max(0, bank.getIncome() - safeAmount));
             case "expense" -> bank.setExpense(Math.max(0, bank.getExpense() - safeAmount));
             case "loan"    -> bank.setLoan(Math.max(0, bank.getLoan() - safeAmount));
@@ -106,6 +106,7 @@ public class BankService {
 
         bank.getTransactions().removeIf(t -> t.getId().equals(transactionId));
         transactionRepository.delete(tx);
+        
         return bankRepository.save(bank);
     }
 
@@ -113,20 +114,24 @@ public class BankService {
     public BankModel editTransaction(String firebaseUid, UUID bankId, UUID transactionId,
                                      double newAmount, String newReason) {
         BankModel bank = bankRepository.findByIdAndFirebaseUid(bankId, firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permiso"));
+                .orElseThrow(() -> new RuntimeException("Banco no encontrado o sin permisos"));
 
         TransactionModel tx = transactionRepository.findByIdAndBankFirebaseUid(transactionId, firebaseUid)
-                .orElseThrow(() -> new RuntimeException("Transacción no encontrada o sin permiso"));
+                .orElseThrow(() -> new RuntimeException("Transacción no encontrada o sin permisos"));
 
+        // Calculamos la diferencia para ajustar el total del banco
         double diff = newAmount - tx.getAmount();
-        switch (tx.getType()) {
+
+        switch (tx.getType().toLowerCase()) {
             case "income"  -> bank.setIncome(Math.max(0, bank.getIncome() + diff));
             case "expense" -> bank.setExpense(Math.max(0, bank.getExpense() + diff));
             case "loan"    -> bank.setLoan(Math.max(0, bank.getLoan() + diff));
         }
 
         tx.setAmount(newAmount);
-        tx.setReason(newReason);
+        tx.setReason(newReason != null ? newReason : tx.getReason());
+        
+        transactionRepository.save(tx);
         return bankRepository.save(bank);
     }
 }

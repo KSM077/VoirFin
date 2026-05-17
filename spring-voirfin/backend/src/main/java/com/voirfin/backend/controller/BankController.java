@@ -11,25 +11,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-
 @RestController
 @RequestMapping("/api/banks")
-// Ajusta el origen al dominio de tu frontend en producción
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Permite peticiones desde cualquier origen (Vercel, localhost, etc.)
 public class BankController {
 
     @Autowired
     private BankService bankService;
 
-    // ── GET /api/banks?uid={firebaseUid} ──────────────────────────────────────
-    // Devuelve los bancos del usuario. El uid es SIEMPRE requerido.
+    // ── GESTIÓN DE BANCOS ──────────────────────────────────────────────────
+
+    // GET /api/banks?uid={firebaseUid}
     @GetMapping
     public ResponseEntity<List<BankModel>> getBanks(@RequestParam("uid") String uid) {
         return ResponseEntity.ok(bankService.getBanksByUser(uid));
     }
 
-    // ── POST /api/banks ───────────────────────────────────────────────────────
-    // Body: { firebaseUid, name, color }
+    // POST /api/banks
     @PostMapping
     public ResponseEntity<BankModel> createBank(@RequestBody Map<String, String> body) {
         BankModel bank = bankService.createBank(
@@ -40,32 +38,27 @@ public class BankController {
         return ResponseEntity.ok(bank);
     }
 
-    // ── DELETE /api/banks/{bankId}?uid={firebaseUid} ──────────────────────────
+    // DELETE /api/banks/{bankId}?uid={firebaseUid}
     @DeleteMapping("/{bankId}")
-    public ResponseEntity<Void> deleteBank(@PathVariable UUID bankId,
-                                           @RequestParam("uid") String uid) {
-        bankService.deleteBank(uid, bankId);
+    public ResponseEntity<Void> deleteBank(@PathVariable UUID bankId, 
+                                          @RequestParam("uid") String uid) {
+        bankService.deleteBank(bankId, uid);
         return ResponseEntity.noContent().build();
     }
 
-    // ── GET /api/banks/{bankId}/transactions?uid={firebaseUid} ────────────────
-    // NUEVO: endpoint dedicado para "el ojo". Filtra por bankId Y firebaseUid
-    // para garantizar que solo el dueño pueda ver sus transacciones.
-    @GetMapping("/{bankId}/transactions")
-    public ResponseEntity<List<TransactionModel>> getTransactions(
-            @PathVariable UUID bankId,
-            @RequestParam("uid") String uid) {
+    // ── GESTIÓN DE TRANSACCIONES ───────────────────────────────────────────
 
-        List<TransactionModel> transactions =
-                bankService.getTransactionsByBank(uid, bankId);
-        return ResponseEntity.ok(transactions);
+    // GET /api/banks/{bankId}/transactions?uid={firebaseUid}
+    @GetMapping("/{bankId}/transactions")
+    public ResponseEntity<List<TransactionModel>> getTransactions(@PathVariable UUID bankId,
+                                                                 @RequestParam("uid") String uid) {
+        return ResponseEntity.ok(bankService.getTransactionsByBank(uid, bankId));
     }
 
-    // ── POST /api/banks/{bankId}/transactions ─────────────────────────────────
-    // Body: { firebaseUid, type, amount, reason, categoryId }
+    // POST /api/banks/{bankId}/transactions
     @PostMapping("/{bankId}/transactions")
     public ResponseEntity<BankModel> addTransaction(@PathVariable UUID bankId,
-                                                    @RequestBody Map<String, Object> body) {
+                                                   @RequestBody Map<String, Object> body) {
         String uid        = (String) body.get("firebaseUid");
         String type       = (String) body.get("type");
         double amount     = Double.parseDouble(body.get("amount").toString());
@@ -76,7 +69,7 @@ public class BankController {
         return ResponseEntity.ok(updated);
     }
 
-    // ── DELETE /api/banks/{bankId}/transactions/{txId}?uid={firebaseUid} ──────
+    // DELETE /api/banks/{bankId}/transactions/{txId}?uid={firebaseUid}
     @DeleteMapping("/{bankId}/transactions/{txId}")
     public ResponseEntity<BankModel> deleteTransaction(@PathVariable UUID bankId,
                                                        @PathVariable UUID txId,
@@ -85,15 +78,14 @@ public class BankController {
         return ResponseEntity.ok(updated);
     }
 
-    // ── PUT /api/banks/{bankId}/transactions/{txId} ───────────────────────────
-    // Body: { firebaseUid, amount, reason }
+    // PUT /api/banks/{bankId}/transactions/{txId}
     @PutMapping("/{bankId}/transactions/{txId}")
     public ResponseEntity<BankModel> editTransaction(@PathVariable UUID bankId,
                                                      @PathVariable UUID txId,
                                                      @RequestBody Map<String, Object> body) {
-        String uid     = (String) body.get("firebaseUid");
-        double amount  = Double.parseDouble(body.get("amount").toString());
-        String reason  = (String) body.get("reason");
+        String uid    = (String) body.get("firebaseUid");
+        double amount = Double.parseDouble(body.get("amount").toString());
+        String reason = (String) body.get("reason");
 
         BankModel updated = bankService.editTransaction(uid, bankId, txId, amount, reason);
         return ResponseEntity.ok(updated);
