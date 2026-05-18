@@ -521,6 +521,11 @@
         margin: 20px;
     }
 
+    .form-actions .btn-confirm {
+        position: relative;
+        top: 135px;
+    }
+
     .btn-return {
         width: 100%;
     }
@@ -681,6 +686,11 @@
         padding: 60px;
     }
 
+    .form-actions .btn-confirm {
+        position: relative;
+        top: 135px;
+    }
+
     .color-grid {
         top: 0;
         position: static;
@@ -754,6 +764,11 @@
     .modal-overlay {
         padding: 55px;
         margin-top: 150px;
+    }
+
+    .form-actions .btn-confirm {
+        position: relative;
+        top: 135px;
     }
 
     .transaction-form-container button {

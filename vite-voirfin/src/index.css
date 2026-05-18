@@ -8,6 +8,5 @@
 
 body {
   font-family: "Kdam Thmor Pro", sans-serif;
-  /* MODIFICADO: height → min-height para que el contenido largo no quede cortado en pantallas pequeñas */
   min-height: 100vh;
 }

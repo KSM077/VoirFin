@@ -25,7 +25,7 @@ const CategoryForm = ({ onBack }) => {
                     </div>
                     <div className="form-group">
                         <label>Cuenta asociada</label>
-                        <select className="bank-select" style={{ width: '450px' }} onChange={e => setSelectedBank(e.target.value)}>
+                        <select className="bank-select" style={{ width: 'auto' }} onChange={e => setSelectedBank(e.target.value)}>
                             <option value="">Seleccionar banco...</option>
                             {banks.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                         </select>
