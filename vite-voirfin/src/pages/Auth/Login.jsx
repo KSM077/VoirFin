@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { auth, db, API_URL } from "../../components/Firebase/FirebaseService";
 import LoginWithGoogle from "./LoginWithGoogle";
 import ForgotPassword from "./ForgotPwd"
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 import "./Auth.css";
 
 
@@ -14,6 +15,7 @@ const emailImg = "/email.png";
 const Login = () => {
   const [dataForm, setDataForm] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +34,7 @@ const Login = () => {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
+    setIsAuthLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, dataForm.email, dataForm.password);
 
@@ -58,6 +61,7 @@ const Login = () => {
 
     } catch (error) {
       console.error("Error en login:", error.message);
+      setIsAuthLoading(false);
       alert("Credenciales inválidas o cuenta no encontrada.");
     }
   };
@@ -70,6 +74,7 @@ const Login = () => {
           <p>Cargando...</p>
         </div>
       )}
+      {isAuthLoading && <LoadingScreen message="Iniciando sesión..." />}
       <div className="container" style={{ visibility: isLoading ? "hidden" : "visible" }}>
         <form method="POST" onSubmit={handleSubmitForm}>
           <div className="header">

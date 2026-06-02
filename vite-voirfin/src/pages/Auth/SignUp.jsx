@@ -4,6 +4,7 @@ import { auth, db, API_URL } from "../../components/Firebase/FirebaseService";
 import { setDoc, doc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 import LoginWithGoogle from "./LoginWithGoogle";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 import "./Auth.css";
 
 const userImg = "/user.png";
@@ -17,12 +18,14 @@ const SignUp = () => {
     email: "",
     password: "",
   });
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   const handleChangeInput = (e) =>
     setDataForm((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
 
   const handleSubmitForm = async (e) => {
   e.preventDefault();
+  setIsAuthLoading(true);
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, dataForm.email, dataForm.password);
     
@@ -56,12 +59,15 @@ const SignUp = () => {
     
   } catch (error) {
     console.error("Error en registro:", error);
+    setIsAuthLoading(false);
     alert("Error al crear la cuenta: " + error.message);
   }
   };
 
   return (
-    <div className="container">
+    <>
+      {isAuthLoading && <LoadingScreen message="Creando tu cuenta..." />}
+      <div className="container">
       <form onSubmit={handleSubmitForm}>
         <div className="header">
           <h3>Sign Up</h3>
@@ -104,6 +110,7 @@ const SignUp = () => {
         </div>
       </form>
     </div>
+    </>
   );
 };
 

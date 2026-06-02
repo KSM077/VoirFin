@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import google from '../../../public/google.jpg'
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db, API_URL } from "../../components/Firebase/FirebaseService";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 
 const LoginWithGoogle = () => {
   const navigate = useNavigate();
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   const handleClickLoginGoogle = async() => {
+  setIsAuthLoading(true);
   try {
     const provider = new GoogleAuthProvider();
     const userCredential = await signInWithPopup(auth, provider);
@@ -38,21 +42,26 @@ const LoginWithGoogle = () => {
       navigate("/dashboard");
     } else {
       console.error("El backend respondió con error:", response.status);
+      setIsAuthLoading(false);
     }
 
   } catch (error) {
     console.error("Error completo en el proceso:", error);
+    setIsAuthLoading(false);
     alert("Hubo un problema al conectar con el servidor. Revisa la consola.");
   }
   };
 
     return (
-        <div className="login-with-google">
-            <p>-- Or continue with --</p>
-            <div className="google-login-card" onClick={handleClickLoginGoogle}>
-                <img src={google} alt="google-icon" />
+        <>
+            {isAuthLoading && <LoadingScreen message="Iniciando sesión..." />}
+            <div className="login-with-google">
+                <p>-- Or continue with --</p>
+                <div className="google-login-card" onClick={handleClickLoginGoogle}>
+                    <img src={google} alt="google-icon" />
+                </div>
             </div>
-        </div>
+        </>
     )
 
 };
