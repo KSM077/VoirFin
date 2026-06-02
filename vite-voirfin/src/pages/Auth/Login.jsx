@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, db, API_URL } from "../../components/Firebase/FirebaseService";
-import LoginWithGoogle from "./LoginWithGoogle";
 import ForgotPassword from "./ForgotPwd"
+import LoginWithGoogle from "./LoginWithGoogle";
 import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 import "./Auth.css";
 

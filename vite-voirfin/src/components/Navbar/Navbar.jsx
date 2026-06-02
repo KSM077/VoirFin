@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { Spin as Hamburger } from 'hamburger-react';
 import { Outlet, useNavigate, Link } from 'react-router-dom';
-import { signOut } from "firebase/auth";
-import { auth } from "../Firebase/FirebaseService";
+import { useBanks } from '../../context/BankContext';
 import logo from "../../assets/logo.png";
 import './Navbar.css';
 
 const Navbar = () => {
     const [isOpen, setOpen] = useState(false);
+    const { logout } = useBanks();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
-            await signOut(auth);
-            console.log("Sesión cerrada");
+            await logout();
             navigate("/login");
         } catch (error) {
             console.error("Error al cerrar sesión:", error);

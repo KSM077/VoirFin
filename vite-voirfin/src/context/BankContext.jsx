@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
-import { auth } from "../components/Firebase/FirebaseService";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { auth, API_URL } from "../components/Firebase/FirebaseService";
 
 const BankContext = createContext(null);
 
@@ -102,24 +100,19 @@ export function BankProvider({ children }) {
 
   const viewTransactions = useCallback(async (bankId) => {
     if (!user) return [];
-    try {
-      const res = await fetch(
-        `${API_URL}/api/banks/${bankId}/transactions?uid=${user.uid}`
-      );
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const transactions = await res.json();
-      return transactions.map((tx) => ({
-        id:          tx.id,
-        description: tx.reason     || "Sin descripción",
-        amount:      Number(tx.amount ?? 0),
-        date:        tx.date        || new Date().toISOString(),
-        type:        tx.type,
-        categoryId:  tx.categoryId  || null,
-      }));
-    } catch (err) {
-      console.error("[BankContext] viewTransactions:", err);
-      return [];
-    }
+    const res = await fetch(
+      `${API_URL}/api/banks/${bankId}/transactions?uid=${user.uid}`
+    );
+    if (!res.ok) throw new Error(`Error ${res.status}`);
+    const transactions = await res.json();
+    return transactions.map((tx) => ({
+      id:          tx.id,
+      description: tx.reason     || "Sin descripción",
+      amount:      Number(tx.amount ?? 0),
+      date:        tx.date        || new Date().toISOString(),
+      type:        tx.type,
+      categoryId:  tx.categoryId  || null,
+    }));
   }, [user]);
 
 
@@ -184,16 +177,23 @@ export function BankProvider({ children }) {
     return sanitized;
   }, [user]);
 
-  const addCategory = useCallback((name, icon, bankId) => {
-    const newCat = {
-      id:     crypto.randomUUID(),
-      name,
-      icon,
-      bankId: bankId || null,
-    };
-    setCategories((prev) => [...prev, newCat]);
-    return newCat;
-  }, []);
+  const selectBankById = useCallback((bankId) => {
+    const bank = banks.find((b) => b.id === bankId) || null;
+    setSelectedBank(bank);
+  }, [banks]);
+
+  const addCategory = useCallback(async (name, icon, bankId) => {
+    if (!user) return;
+    const res = await fetch(`${API_URL}/api/categories`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ firebaseUid: user.uid, name, icon, bankId }),
+    });
+    if (!res.ok) throw new Error("No se pudo crear la categoría");
+    const savedCat = await res.json();
+    setCategories((prev) => [...prev, savedCat]);
+    return savedCat;
+  }, [user]);
 
   const logout = useCallback(async () => {
     setBanks([]);
@@ -206,7 +206,7 @@ export function BankProvider({ children }) {
 
   const value = {
     user, banks, loading, error,
-    selectedBank, setSelectedBank, 
+    selectedBank, selectBankById,  
     totalBalance, getBalance,       
     categories, addCategory,       
     fetchBanks,
